@@ -2,6 +2,7 @@ package edu.ithaca.dragon.games.tictactoe.player;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.function.Function;
 
 import org.javatuples.Pair;
 
@@ -20,16 +21,10 @@ public class RuleBasedPlayer implements TicTacToePlayer {
                (y == 2 && x == 2);
     }
 
-    @Override
-    public Pair<Integer, Integer> chooseSquare(TicTacToeBoard curBoard, char yourSymbol) {
-        String curBoardString = curBoard.buildSquaresString();
-        int[][] symbolMap = {
-            {0,1,2},
-            {3,4,5},
-            {6,7,8}
-        };
-        // horizontal check
+    private Pair<Integer,Integer> winHorizontally(TicTacToeBoard curBoard, String curBoardString, int[][] symbolMap, char yourSymbol) {
+        Pair<Integer, Integer> coords = null;
         int count = 0;
+
         for (int x = 0; x < 3; x++){
             for(int y = 0; y < 3 && count < 2; y++) {
                 if (yourSymbolIsAt(curBoardString, symbolMap, x, y, yourSymbol)) {
@@ -40,15 +35,22 @@ public class RuleBasedPlayer implements TicTacToePlayer {
                 // find empty spot in row
                 for (int i = 0; i < 3; i++) {
                     if (curBoard.isSquareOpen(new Pair<>(i,x))) {
-                        return new Pair<>(i,x);
+                        coords = new Pair<>(i,x);
+                        x = 3;
+                        break;
                     }
                 }
             } else {
                 count = 0;
             }
         }
-        // vertical check
-        count = 0;
+        return coords;
+    }
+
+    private Pair<Integer,Integer> winVertically(TicTacToeBoard curBoard, String curBoardString, int[][] symbolMap, char yourSymbol) {
+        Pair<Integer,Integer> coords = null;
+        int count = 0;
+
         for (int y = 0; y < 3; y++){
             for(int x = 0; x < 3 && count < 2; x++) {
                 if (yourSymbolIsAt(curBoardString, symbolMap, x, y, yourSymbol)) {
@@ -59,15 +61,22 @@ public class RuleBasedPlayer implements TicTacToePlayer {
                 // find empty spot in column
                 for (int i = 0; i < 3; i++) {
                     if (curBoard.isSquareOpen(new Pair<>(y,i))) {
-                        return new Pair<>(y,i);
+                        coords = new Pair<>(y,i);
+                        y = 3;
+                        break;
                     }
                 }
             } else {
                 count = 0;
             }
         }
+        return coords;
+    }
 
-        // left diagonal check
+    private Pair<Integer,Integer> winDiagonallyRight(TicTacToeBoard curBoard, String curBoardString, int[][] symbolMap, char yourSymbol) {
+        Pair<Integer,Integer> coords = null;
+        int count = 0;
+
         for (int x1 = 0, y1 = 0; x1 < 3 && y1 < 3; x1++, y1++)  {
             if (yourSymbolIsAt(curBoardString, symbolMap, x1, y1, yourSymbol)) {
                 count++;
@@ -76,13 +85,20 @@ public class RuleBasedPlayer implements TicTacToePlayer {
                 // find empty spot
                 for (int x2 = 0, y2 = 0; x2 < 3 && y2 < 3; x2++, y2++)  {
                     if (curBoard.isSquareOpen(new Pair<>(y2,x2))) {
-                        return new Pair<>(y2,x2);
+                        coords = new Pair<>(y2,x2);
+                        x1 = y1 = 3;
+                        break;
                     } 
                 }
             }
         }
+        return coords;
+    }
 
-        // right diagonal check
+    private Pair<Integer,Integer> winDiagonallyLeft(TicTacToeBoard curBoard, String curBoardString, int[][] symbolMap, char yourSymbol) {
+        Pair<Integer,Integer> coords = null;
+        int count = 0;
+
         for (int x1 = 0, y1 = 2; x1 < 3 && y1 >= 0; x1++, y1--)  {
             if (yourSymbolIsAt(curBoardString, symbolMap, x1, y1, yourSymbol)) {
                 count++;
@@ -91,14 +107,42 @@ public class RuleBasedPlayer implements TicTacToePlayer {
                 // find empty spot
                 for (int x2 = 0, y2 = 2; x2 < 3 && y2 >= 0; x2++, y2--)  {
                     if (curBoard.isSquareOpen(new Pair<>(y2,x2))) {
-                        return new Pair<>(y2,x2);
+                        coords = new Pair<>(y2,x2);
+                        x1 = 3; y1 = -1;
+                        break;
                     } 
                 }
             }
         }
-        // take corners if no win is available
+        return coords;
+    }
+
+    private ArrayList<Pair<Integer, Integer>> calculateWinningMove(TicTacToeBoard curBoard, String curBoardString, int[][] symbolMap, char yourSymbol) {
+        ArrayList<Pair<Integer,Integer>> moveCoords = new ArrayList<>();
+        moveCoords.add(winHorizontally(curBoard, curBoardString, symbolMap, yourSymbol));
+        moveCoords.add(winVertically(curBoard, curBoardString, symbolMap, yourSymbol));
+        moveCoords.add(winDiagonallyRight(curBoard, curBoardString, symbolMap, yourSymbol));
+        moveCoords.add(winDiagonallyLeft(curBoard, curBoardString, symbolMap, yourSymbol));
+        return moveCoords;
+    }
+
+    private Pair<Integer, Integer> randomMove(TicTacToeBoard curBoard) {
+        // otherwise, be random
+        Random rand = new Random();
+        int x;
+        int y;
+        do {
+            x = rand.nextInt(3);
+            y = rand.nextInt(3);
+        } while (!curBoard.isSquareOpen(new Pair<>(y,x)));
+        return new Pair<>(y,x);
+    }
+
+    private Pair<Integer, Integer> attemptCorners(TicTacToeBoard curBoard, String curBoardString, int[][] symbolMap, char yourSymbol) {
         Random rand = new Random();
         ArrayList<Pair<Integer,Integer>> availCorners = new ArrayList<>();
+        Pair<Integer, Integer> coords = null;
+
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 3; x++) {
                 if (curBoard.isSquareOpen(new Pair<>(y,x)) && isCorner(y, x)) {
@@ -107,15 +151,37 @@ public class RuleBasedPlayer implements TicTacToePlayer {
             }
         }
         if (!availCorners.isEmpty()) 
-            return availCorners.get(rand.nextInt(availCorners.size()));
+            coords = availCorners.get(rand.nextInt(availCorners.size()));
 
-        // otherwise, be random
-        int x;
-        int y;
-        do {
-            x = rand.nextInt(3);
-            y = rand.nextInt(3);
-        } while (!curBoard.isSquareOpen(new Pair<>(y,x)));
-        return new Pair<>(y,x);
+        return coords;
+    }
+
+    private Pair<Integer, Integer> attemptWin(TicTacToeBoard curBoard, String curBoardString, int[][] symbolMap, char yourSymbol) {
+        for (Pair<Integer, Integer> move: calculateWinningMove(curBoard, curBoardString, symbolMap, yourSymbol)) {
+            if (move != null)
+                return move;
+        }
+        return null;
+    }
+
+
+    @Override
+    public Pair<Integer, Integer> chooseSquare(TicTacToeBoard curBoard, char yourSymbol) {
+        String curBoardString = curBoard.buildSquaresString();
+        int[][] symbolMap = {
+            {0,1,2},
+            {3,4,5},
+            {6,7,8}
+        };
+
+        Pair<Integer, Integer> winningMove = attemptWin(curBoard, curBoardString, symbolMap, yourSymbol);
+        if (winningMove != null)
+            return winningMove;
+
+        Pair<Integer, Integer> cornersMove = attemptCorners(curBoard, curBoardString, symbolMap, yourSymbol);
+        if (cornersMove != null)
+            return cornersMove;
+
+        return randomMove(curBoard);
     }
 }
