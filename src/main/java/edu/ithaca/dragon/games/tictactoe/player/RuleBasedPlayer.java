@@ -2,7 +2,6 @@ package edu.ithaca.dragon.games.tictactoe.player;
 
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.function.Function;
 
 import org.javatuples.Pair;
 
@@ -164,6 +163,10 @@ public class RuleBasedPlayer implements TicTacToePlayer {
         return null;
     }
 
+    private Pair<Integer, Integer> stopWin(TicTacToeBoard curBoard, String curBoardString, int[][] symbolMap, char yourSymbol) {
+        return attemptWin(curBoard, curBoardString, symbolMap, yourSymbol == 'X' ? 'O' : 'X');
+    }
+
 
     @Override
     public Pair<Integer, Integer> chooseSquare(TicTacToeBoard curBoard, char yourSymbol) {
@@ -177,6 +180,10 @@ public class RuleBasedPlayer implements TicTacToePlayer {
         Pair<Integer, Integer> winningMove = attemptWin(curBoard, curBoardString, symbolMap, yourSymbol);
         if (winningMove != null)
             return winningMove;
+
+        Pair<Integer, Integer> defensiveMove = stopWin(curBoard, curBoardString, symbolMap, yourSymbol);
+        if (defensiveMove != null)
+            return defensiveMove;
 
         Pair<Integer, Integer> cornersMove = attemptCorners(curBoard, curBoardString, symbolMap, yourSymbol);
         if (cornersMove != null)
