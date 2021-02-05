@@ -40,6 +40,21 @@ public class RuleBasedPlayerTest {
             assertTrue(isCornerOrMiddle(player.chooseSquare(new TwoDArrayBoard("  X      "), 'X')));
             assertTrue(isCornerOrMiddle(player.chooseSquare(new TwoDArrayBoard("        X"), 'X')));
             assertTrue(isCornerOrMiddle(player.chooseSquare(new TwoDArrayBoard("      X  "), 'X')));
+
+
+            // --checking for agents defense--
+            // horizontal
+            assertEquals(new Pair<>(2,0), player.chooseSquare(new TwoDArrayBoard("OO       "), 'X'));
+            assertEquals(new Pair<>(1,0), player.chooseSquare(new TwoDArrayBoard("O O      "), 'X'));
+            // vertical
+            assertEquals(new Pair<>(0,2), player.chooseSquare(new TwoDArrayBoard("O  O     "), 'X'));
+            assertEquals(new Pair<>(0,1), player.chooseSquare(new TwoDArrayBoard("O     O  "), 'X'));
+            //left diagonal
+            assertEquals(new Pair<>(2,2), player.chooseSquare(new TwoDArrayBoard("O   O    "), 'X'));
+            assertEquals(new Pair<>(1,1), player.chooseSquare(new TwoDArrayBoard("O       O"), 'X'));
+            // right diagonal
+            assertEquals(new Pair<>(0,2), player.chooseSquare(new TwoDArrayBoard("  O O    "), 'X'));
+            assertEquals(new Pair<>(1,1), player.chooseSquare(new TwoDArrayBoard("  O   O  "), 'X'));
     }
 
 }
