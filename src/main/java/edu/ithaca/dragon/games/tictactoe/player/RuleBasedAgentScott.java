@@ -7,7 +7,7 @@ import org.javatuples.Pair;
 
 import edu.ithaca.dragon.games.tictactoe.board.TicTacToeBoard;
 
-public class RuleBasedPlayer implements TicTacToePlayer {
+public class RuleBasedAgentScott implements TicTacToePlayer {
 
     private boolean yourSymbolIsAt(String boardString, int[][] symbolMap, int x, int y, char yourSymbol) {
         return boardString.charAt(symbolMap[x][y]) == yourSymbol;
