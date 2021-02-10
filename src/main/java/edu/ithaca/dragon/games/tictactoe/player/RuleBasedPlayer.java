@@ -20,11 +20,15 @@ public class RuleBasedPlayer implements TicTacToePlayer {
                (y == 2 && x == 2);
     }
 
+    private Pair<Integer, Integer> attemptMiddle(String boardString, int[][] symbolMap, char yourSymbol) {
+        return boardString.isBlank() ? new Pair<>(1,1) : null;
+    }
+
     private Pair<Integer,Integer> winHorizontally(TicTacToeBoard curBoard, String curBoardString, int[][] symbolMap, char yourSymbol) {
         Pair<Integer, Integer> coords = null;
-        int count = 0;
 
         for (int x = 0; x < 3; x++){
+            int count = 0;
             for(int y = 0; y < 3 && count < 2; y++) {
                 if (yourSymbolIsAt(curBoardString, symbolMap, x, y, yourSymbol)) {
                     count++;
@@ -39,8 +43,6 @@ public class RuleBasedPlayer implements TicTacToePlayer {
                         break;
                     }
                 }
-            } else {
-                count = 0;
             }
         }
         return coords;
@@ -48,9 +50,9 @@ public class RuleBasedPlayer implements TicTacToePlayer {
 
     private Pair<Integer,Integer> winVertically(TicTacToeBoard curBoard, String curBoardString, int[][] symbolMap, char yourSymbol) {
         Pair<Integer,Integer> coords = null;
-        int count = 0;
 
         for (int y = 0; y < 3; y++){
+            int count = 0;
             for(int x = 0; x < 3 && count < 2; x++) {
                 if (yourSymbolIsAt(curBoardString, symbolMap, x, y, yourSymbol)) {
                     count++;
@@ -65,8 +67,6 @@ public class RuleBasedPlayer implements TicTacToePlayer {
                         break;
                     }
                 }
-            } else {
-                count = 0;
             }
         }
         return coords;
@@ -184,6 +184,10 @@ public class RuleBasedPlayer implements TicTacToePlayer {
         Pair<Integer, Integer> defensiveMove = stopWin(curBoard, curBoardString, symbolMap, yourSymbol);
         if (defensiveMove != null)
             return defensiveMove;
+
+        Pair<Integer, Integer> middleMove = attemptMiddle(curBoardString, symbolMap, yourSymbol);
+        if (middleMove != null)
+            return middleMove;
 
         Pair<Integer, Integer> cornersMove = attemptCorners(curBoard, curBoardString, symbolMap, yourSymbol);
         if (cornersMove != null)

@@ -1,6 +1,7 @@
 package edu.ithaca.dragon.games.tictactoe.player;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.javatuples.Pair;
@@ -10,11 +11,15 @@ import edu.ithaca.dragon.games.tictactoe.board.TwoDArrayBoard;
 
 public class RuleBasedPlayerTest {
     
-    private boolean isCornerOrMiddle(Pair<Integer, Integer> pair) {
+    private boolean isCorner(Pair<Integer, Integer> pair) {
         return pair.equals(new Pair<>(0,0)) || 
                pair.equals(new Pair<>(2,0)) || 
                pair.equals(new Pair<>(0,2)) ||
                pair.equals(new Pair<>(2,2));
+    }
+
+    private boolean isMiddle(Pair<Integer, Integer> pair) {
+        return pair.equals(new Pair<>(1,1));
     }
 
     @Test
@@ -35,12 +40,14 @@ public class RuleBasedPlayerTest {
             assertEquals(new Pair<>(1,1), player.chooseSquare(new TwoDArrayBoard("  X   X  "), 'X'));
 
             // --check for corner selection--
-            assertTrue(isCornerOrMiddle(player.chooseSquare(new TwoDArrayBoard("         "), 'X')));
-            assertTrue(isCornerOrMiddle(player.chooseSquare(new TwoDArrayBoard("X        "), 'X')));
-            assertTrue(isCornerOrMiddle(player.chooseSquare(new TwoDArrayBoard("  X      "), 'X')));
-            assertTrue(isCornerOrMiddle(player.chooseSquare(new TwoDArrayBoard("        X"), 'X')));
-            assertTrue(isCornerOrMiddle(player.chooseSquare(new TwoDArrayBoard("      X  "), 'X')));
+            assertTrue(isCorner(player.chooseSquare(new TwoDArrayBoard("X        "), 'X')));
+            assertTrue(isCorner(player.chooseSquare(new TwoDArrayBoard("  X      "), 'X')));
+            assertTrue(isCorner(player.chooseSquare(new TwoDArrayBoard("        X"), 'X')));
+            assertTrue(isCorner(player.chooseSquare(new TwoDArrayBoard("      X  "), 'X')));
 
+            // -- check for middle selection only if second
+            assertFalse(isMiddle(player.chooseSquare(new TwoDArrayBoard("O        "), 'X')));
+            assertTrue(isMiddle(player.chooseSquare(new TwoDArrayBoard("         "), 'X')));
 
             // --checking for agents defense--
             // horizontal
